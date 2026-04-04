@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>05 - Student Directory Mini Project | AcademyDSJ Session 3</title>
+
+    <!--
+        ============================================================
+        AcademyDSJ - Session 3: Mini Project — Student Directory
+        ============================================================
+        මේ mini project එකේ Session 3 වල ඉගෙන ගත්ත සියලුම concepts combine වෙනවා:
+        - Components (App, StudentForm, StudentCard, SearchBar, StatsBar)
+        - Props (data pass between components)
+        - State (useState hook)
+        - Events (form submit, button clicks, input changes)
+        - Lists (.map() with keys)
+        - Conditional rendering (&&, ternary)
+        - Filter/Search
+
+        Features:
+        - Add new students with name, email, batch, grade
+        - Search students by name or email
+        - Filter by batch
+        - Delete students
+        - Live statistics
+        ============================================================
+    -->
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { background: #0f172a; color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        const { useState } = React;
+
+
+        // ============================================================
+        // COMPONENT 1: Header
+        // App එකේ top header — static component (state/props ඕනි නැහැ)
+        // ============================================================
+
+        function Header() {
+            return (
+                <header className="bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-xl p-6 mb-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold">
+                                <span className="text-cyan-400">Academy</span>
+                                <span className="text-emerald-400">DSJ</span>
+                                <span className="text-slate-400 text-lg ml-2">Student Directory</span>
+                            </h1>
+                            <p className="text-slate-500 text-sm mt-1">
+                                Session 3 Mini Project — Components + Props + State + Lists
+                            </p>
+                        </div>
+                        <span className="text-4xl">🎓</span>
+                    </div>
+                </header>
+            );
+        }
+
+
+        // ============================================================
+        // COMPONENT 2: StatsBar
+        // Statistics display — props එකෙන් data receive කරනවා
+        // ============================================================
+
+        /**
+         * Props:
+         * - total: total student count (number)
+         * - batches: unique batch count (number)
+         * - avgGrade: average grade display (string)
+         *
+         * මේ component එක state manage කරන්නේ නැහැ — display only!
+         * Pure presentational component — receives data via props.
+         */
+        function StatsBar({ total, batches, gradeACount }) {
+            const stats = [
+                { label: 'Total Students', value: total, color: 'text-cyan-400' },
+                { label: 'Batches', value: batches, color: 'text-emerald-400' },
+                { label: 'Grade A Students', value: gradeACount, color: 'text-yellow-400' },
+            ];
+
+            return (
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                    {stats.map(stat => (
+                        <div key={stat.label} className="bg-slate-800 rounded-lg p-4 text-center">
+                            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                            <p className="text-slate-500 text-xs mt-1">{stat.label}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // COMPONENT 3: SearchBar
+        // Search + Filter controls — events parent එකට lift up කරනවා
+        // ============================================================
+
+        /**
+         * "Lifting State Up" pattern:
+         * SearchBar component එක search/filter values manage කරන්නේ නැහැ.
+         * Parent (App) එකේ state update කරන functions props විදියට pass කරනවා.
+         *
+         * Props:
+         * - searchTerm: current search text (string)
+         * - onSearchChange: search text change handler (function)
+         * - selectedBatch: current filter (string)
+         * - onBatchChange: filter change handler (function)
+         * - batches: available batch options (array)
+         */
+        function SearchBar({ searchTerm, onSearchChange, selectedBatch, onBatchChange, batches }) {
+            return (
+                <div className="bg-slate-800 rounded-xl p-4 mb-4">
+                    <div className="flex flex-col md:flex-row gap-3">
+                        {/* Search input */}
+                        <div className="flex-1">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => onSearchChange(e.target.value)}
+                                placeholder="Search by name or email..."
+                                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
+                            />
+                        </div>
+
+                        {/* Batch filter */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => onBatchChange('all')}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                    selectedBatch === 'all'
+                                        ? 'bg-cyan-500 text-white'
+                                        : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                                }`}
+                            >
+                                All
+                            </button>
+                            {batches.map(batch => (
+                                <button
+                                    key={batch}
+                                    onClick={() => onBatchChange(batch)}
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                        selectedBatch === batch
+                                            ? 'bg-cyan-500 text-white'
+                                            : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                                    }`}
+                                >
+                                    {batch}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // COMPONENT 4: StudentForm
+        // Add student form — form state manage + onAdd callback
+        // ============================================================
+
+        /**
+         * StudentForm — add student form.
+         * Form state මේ component එක ඇතුලේම manage කරනවා (local state).
+         * Submit වුණාම parent එකේ onAdd function call කරනවා.
+         *
+         * Props:
+         * - onAdd: function to call when form is submitted (receives student object)
+         */
+        function StudentForm({ onAdd }) {
+            const [formData, setFormData] = useState({
+                name: '',
+                email: '',
+                batch: '2026-A',
+                grade: 'A'
+            });
+            const [isOpen, setIsOpen] = useState(false);
+
+            const handleChange = (e) => {
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!formData.name.trim() || !formData.email.trim()) return;
+
+                // Parent එකේ onAdd function call කරනවා — student data pass කරනවා
+                onAdd({
+                    id: Date.now(),
+                    ...formData,
+                    name: formData.name.trim(),
+                    email: formData.email.trim()
+                });
+
+                // Form clear
+                setFormData({ name: '', email: '', batch: '2026-A', grade: 'A' });
+                setIsOpen(false);
+            };
+
+            return (
+                <div className="mb-4">
+                    {/* Toggle button */}
+                    <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="w-full bg-slate-800 hover:bg-slate-750 border border-slate-700 border-dashed rounded-xl p-4 text-center transition-colors"
+                    >
+                        <span className="text-cyan-400 font-medium">
+                            {isOpen ? '− Close Form' : '+ Add New Student'}
+                        </span>
+                    </button>
+
+                    {/* Conditional render — isOpen true නම් පමණයි form show වෙනවා */}
+                    {isOpen && (
+                        <form onSubmit={handleSubmit} className="bg-slate-800 rounded-xl p-5 mt-2 space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-slate-400 text-xs mb-1">Full Name *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="e.g., Kasun Perera"
+                                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs mb-1">Email *</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="e.g., kasun@gmail.com"
+                                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs mb-1">Batch</label>
+                                    <select
+                                        name="batch"
+                                        value={formData.batch}
+                                        onChange={handleChange}
+                                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500"
+                                    >
+                                        <option value="2026-A">Batch 2026-A</option>
+                                        <option value="2026-B">Batch 2026-B</option>
+                                        <option value="2026-C">Batch 2026-C</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-xs mb-1">Grade</label>
+                                    <select
+                                        name="grade"
+                                        value={formData.grade}
+                                        onChange={handleChange}
+                                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-cyan-500"
+                                    >
+                                        <option value="A">A</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B">B</option>
+                                        <option value="B-">B-</option>
+                                        <option value="C">C</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-lg font-medium transition-colors text-sm"
+                            >
+                                Add Student
+                            </button>
+                        </form>
+                    )}
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // COMPONENT 5: StudentCard
+        // Individual student card — props receive, onDelete callback
+        // ============================================================
+
+        /**
+         * StudentCard — එක student කෙනෙක්ගේ data display කරනවා.
+         * Displays one student's information.
+         *
+         * Props:
+         * - student: student object { id, name, email, batch, grade }
+         * - onDelete: function to delete this student (receives id)
+         */
+        function StudentCard({ student, onDelete }) {
+            const gradeColors = {
+                'A':  'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+                'A-': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+                'B+': 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+                'B':  'bg-cyan-500/15 text-cyan-400 border-cyan-500/20',
+                'B-': 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20',
+                'C':  'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+            };
+
+            // Name initials generate
+            const initials = student.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+            return (
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-slate-600 transition-all group">
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                            {/* Avatar */}
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                                <span className="text-sm font-bold text-white">{initials}</span>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-medium">{student.name}</h4>
+                                <p className="text-slate-400 text-sm">{student.email}</p>
+                            </div>
+                        </div>
+
+                        {/* Delete button — hover එකේ පමණයි visible */}
+                        <button
+                            onClick={() => onDelete(student.id)}
+                            className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 hover:bg-red-500/10 p-1 rounded transition-all"
+                            title="Delete student"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-3">
+                        <span className="bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-xs">
+                            {student.batch}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded border text-xs font-medium ${gradeColors[student.grade] || 'bg-slate-700 text-slate-300'}`}>
+                            Grade {student.grade}
+                        </span>
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // COMPONENT 6: App — Main/Root Component
+        // සියලුම state manage කරනවා, child components compose කරනවා
+        // ============================================================
+
+        /**
+         * App Component — Application එකේ root.
+         * All main state lives here (students, search, filter).
+         * State "lifts up" to the nearest common parent — that's App.
+         *
+         * Data flow:
+         * App (state) → SearchBar (props: searchTerm, handlers)
+         * App (state) → StudentForm (props: onAdd handler)
+         * App (state) → StudentCard (props: student data, onDelete)
+         * App (state) → StatsBar (props: computed stats)
+         */
+        function App() {
+            // ==========================================
+            // STATE — Application එකේ main data
+            // ==========================================
+            const [students, setStudents] = useState([
+                { id: 1, name: "Kasun Perera", email: "kasun@gmail.com", batch: "2026-A", grade: "A" },
+                { id: 2, name: "Nimali Fernando", email: "nimali@gmail.com", batch: "2026-A", grade: "B+" },
+                { id: 3, name: "Saman Silva", email: "saman@gmail.com", batch: "2026-B", grade: "A-" },
+                { id: 4, name: "Dilini Rajapaksa", email: "dilini@gmail.com", batch: "2026-B", grade: "A" },
+                { id: 5, name: "Nuwan Bandara", email: "nuwan@gmail.com", batch: "2026-A", grade: "B" },
+                { id: 6, name: "Sachini De Silva", email: "sachini@gmail.com", batch: "2026-C", grade: "A" },
+                { id: 7, name: "Tharindu Jayasinghe", email: "tharindu@gmail.com", batch: "2026-B", grade: "B-" },
+                { id: 8, name: "Ishara Weerasinghe", email: "ishara@gmail.com", batch: "2026-C", grade: "A-" },
+            ]);
+
+            const [searchTerm, setSearchTerm] = useState('');
+            const [selectedBatch, setSelectedBatch] = useState('all');
+
+            // ==========================================
+            // HANDLERS — Event handler functions
+            // ==========================================
+
+            // Add student — new student object receive කරලා array එකට add
+            const handleAddStudent = (newStudent) => {
+                setStudents(prev => [newStudent, ...prev]);
+            };
+
+            // Delete student — id match වෙන student remove
+            const handleDeleteStudent = (id) => {
+                setStudents(prev => prev.filter(s => s.id !== id));
+            };
+
+            // ==========================================
+            // COMPUTED VALUES — State එකෙන් derive කරන values
+            // ==========================================
+
+            // Unique batches extract
+            const batches = [...new Set(students.map(s => s.batch))].sort();
+
+            // Filter students by search + batch
+            const filteredStudents = students.filter(student => {
+                const matchesSearch =
+                    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    student.email.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesBatch = selectedBatch === 'all' || student.batch === selectedBatch;
+                return matchesSearch && matchesBatch;
+            });
+
+            // Stats
+            const gradeACount = students.filter(s => s.grade.startsWith('A')).length;
+
+            // ==========================================
+            // RENDER — UI compose
+            // ==========================================
+            return (
+                <div className="min-h-screen bg-slate-900">
+                    <div className="max-w-3xl mx-auto px-4 py-8">
+
+                        {/* Header — no props needed (static) */}
+                        <Header />
+
+                        {/* Stats — computed values props විදියට pass */}
+                        <StatsBar
+                            total={students.length}
+                            batches={batches.length}
+                            gradeACount={gradeACount}
+                        />
+
+                        {/* Search & Filter — state + handlers props විදියට pass */}
+                        <SearchBar
+                            searchTerm={searchTerm}
+                            onSearchChange={setSearchTerm}
+                            selectedBatch={selectedBatch}
+                            onBatchChange={setSelectedBatch}
+                            batches={batches}
+                        />
+
+                        {/* Add Student Form — onAdd handler pass */}
+                        <StudentForm onAdd={handleAddStudent} />
+
+                        {/* Student List */}
+                        <div className="mt-4">
+                            <div className="flex items-center justify-between mb-3">
+                                <p className="text-slate-500 text-sm">
+                                    Showing {filteredStudents.length} of {students.length} students
+                                </p>
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => { setSearchTerm(''); setSelectedBatch('all'); }}
+                                        className="text-cyan-400 text-xs hover:text-cyan-300"
+                                    >
+                                        Clear filters
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Conditional — results තිබ්බොත් cards, නැත්තම් empty state */}
+                            {filteredStudents.length === 0 ? (
+                                <div className="bg-slate-800 rounded-xl p-12 text-center">
+                                    <p className="text-slate-500 text-lg">No students found</p>
+                                    <p className="text-slate-600 text-sm mt-1">
+                                        Try a different search term or add a new student
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {/* .map() — filtered students render */}
+                                    {filteredStudents.map(student => (
+                                        <StudentCard
+                                            key={student.id}
+                                            student={student}
+                                            onDelete={handleDeleteStudent}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="text-center py-8 mt-8 border-t border-slate-700">
+                            <p className="text-slate-600 text-xs">
+                                Built with React 18 | Components + Props + State + Lists + Conditional Rendering
+                            </p>
+                            <p className="text-slate-500 text-sm mt-1">
+                                AcademyDSJ &copy; 2026 | Session 3 Mini Project
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // Render App
+        // ============================================================
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>02 - Components & Props | AcademyDSJ Session 3</title>
+
+    <!--
+        ============================================================
+        AcademyDSJ - Session 3: Components & Props
+        ============================================================
+        මේ file එකෙන් ඉගෙන ගන්නවා:
+        - Functional Components හදන විදිය
+        - Props pass කරන විදිය (strings, numbers, objects, arrays)
+        - Props destructuring
+        - Default props
+        - Reusable components (එකම component data වෙනස් කරලා reuse කරන විදිය)
+        - Children prop
+        ============================================================
+    -->
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { background: #0f172a; color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        // ============================================================
+        // SECTION 1: Basic Component (Props නැතුව)
+        // A Simple Component Without Props
+        // ============================================================
+
+        /**
+         * මේ component එක static data පමණයි display කරන්නේ.
+         * This component displays only static/hardcoded data.
+         * Props නැතිව component එකට data change කරන්න බැහැ.
+         * Without props, you can't customize what it shows.
+         */
+        function WelcomeBanner() {
+            return (
+                <div className="bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-xl p-6 text-center mb-8">
+                    <h1 className="text-3xl font-bold text-cyan-400">
+                        Components & Props ⚛️
+                    </h1>
+                    <p className="text-slate-400 mt-2">
+                        AcademyDSJ Session 3 — Reusable UI Building Blocks
+                    </p>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 2: Props — Data Pass කරමු
+        // Passing Data with Props
+        // ============================================================
+
+        /**
+         * Props (Properties) — Parent component එකෙන් child component එකට data pass කරන ක්‍රමය.
+         * Props = data passed from parent to child component.
+         *
+         * Props object එකක් විදියට function එකේ first parameter එකට එනවා.
+         * Props come as an object to the function's first parameter.
+         *
+         * IMPORTANT: Props are READ-ONLY! Child එකට props change කරන්න බැහැ!
+         * Props are immutable — the child component cannot modify them.
+         */
+
+        // Method 1: props object එක whole එකටම receive කරන්න
+        // Receive the entire props object
+        function GreetingV1(props) {
+            return (
+                <div className="bg-slate-800 rounded-lg p-4 mb-3">
+                    <p className="text-slate-300">
+                        Hello, <span className="text-cyan-400 font-bold">{props.name}</span>!
+                        Welcome to <span className="text-emerald-400">{props.course}</span>.
+                    </p>
+                </div>
+            );
+        }
+
+        // Method 2: Destructuring — props directly extract කරන්න (RECOMMENDED ✅)
+        // Destructure props in the parameter — cleaner code!
+        function GreetingV2({ name, course }) {
+            return (
+                <div className="bg-slate-800 rounded-lg p-4 mb-3">
+                    <p className="text-slate-300">
+                        Hello, <span className="text-cyan-400 font-bold">{name}</span>!
+                        Welcome to <span className="text-emerald-400">{course}</span>.
+                    </p>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 3: Different Data Types Props වලින් Pass කරමු
+        // Passing Different Data Types as Props
+        // ============================================================
+
+        /**
+         * Props වලින් ඕනෑම data type එකක් pass කරන්න පුළුවන්:
+         * - Strings:   name="Kasun"
+         * - Numbers:   age={22}           ← { } ඕනි numbers වලට!
+         * - Booleans:  isActive={true}    ← { } ඕනි
+         * - Objects:   user={{name: "K"}} ← { } ඕනි (double curly = JSX { } + object { })
+         * - Arrays:    items={[1, 2, 3]}  ← { } ඕනි
+         * - Functions: onClick={handleClick} ← { } ඕනි
+         *
+         * String values පමණයි quotes ඇතුලේ දෙන්නේ. අනිත් හැම type එකකටම { } ඕනි!
+         */
+        function StudentInfo({ name, age, course, batch, isActive, skills }) {
+            return (
+                <div className="bg-slate-800 rounded-lg p-5 mb-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-xl font-bold text-white">{name}</h3>
+                        {/* Boolean prop — badge color එක change කරන්න */}
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            isActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                        }`}>
+                            {isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <p className="text-slate-400">Age: {age}</p>
+                    <p className="text-slate-400">Course: {course}</p>
+                    <p className="text-slate-400">Batch: {batch}</p>
+                    {/* Array prop — map කරලා render කරන්න */}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {skills.map((skill, index) => (
+                            <span key={index} className="bg-slate-700 text-cyan-300 px-2 py-1 rounded text-xs">
+                                {skill}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 4: Default Props
+        // Props වලට Default Values දෙමු
+        // ============================================================
+
+        /**
+         * Default props — prop එකක් pass නොකලොත් default value එකක් use කරන්න.
+         * If a prop is not passed, use a default value.
+         *
+         * Destructuring ඇතුලේම default values set කරන්න පුළුවන්:
+         * function MyComponent({ name = "Default", age = 0 })
+         */
+        function CourseCard({ title = "Untitled Course", instructor = "TBA", duration = "N/A", level = "Beginner" }) {
+            const levelColors = {
+                Beginner: 'text-emerald-400',
+                Intermediate: 'text-yellow-400',
+                Advanced: 'text-red-400'
+            };
+
+            return (
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-4">
+                    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+                    <p className="text-slate-400">Instructor: {instructor}</p>
+                    <p className="text-slate-400">Duration: {duration}</p>
+                    <p className={`font-medium ${levelColors[level] || 'text-slate-300'}`}>
+                        Level: {level}
+                    </p>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 5: Reusable Component — ProfileCard
+        // එකම Component විවිධ Data එක්ක Reuse කරමු
+        // ============================================================
+
+        /**
+         * Reusable Component — React වල වැදගත්ම concept එක!
+         * The most important concept in React — REUSABILITY!
+         *
+         * එකම ProfileCard component එක 3 වතාවක් use කරනවා,
+         * හැම වතාවේම different data pass කරනවා.
+         *
+         * We use the same ProfileCard component 3 times
+         * with different data each time.
+         */
+        function ProfileCard({ name, role, avatar, bio, github }) {
+            // Avatar initials generate කරන්න (image නැත්තම්)
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+            return (
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-center hover:border-cyan-500/50 transition-all duration-300">
+                    {/* Avatar circle */}
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl font-bold text-white">{initials}</span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white">{name}</h3>
+                    <p className="text-cyan-400 text-sm font-medium mb-2">{role}</p>
+                    <p className="text-slate-400 text-sm mb-4">{bio}</p>
+
+                    {/* GitHub link — conditional render (github prop තිබ්බොත් පමණයි) */}
+                    {github && (
+                        <p className="text-slate-500 text-xs">
+                            github.com/{github}
+                        </p>
+                    )}
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 6: Children Prop — Component ඇතුලේ Content දාමු
+        // The Special "children" Prop
+        // ============================================================
+
+        /**
+         * children prop — Component tags අතරේ දාන content එක.
+         * children = the content placed between component's opening and closing tags.
+         *
+         * <Card>
+         *   <h1>This is children!</h1>  ← මේක children prop එකට යනවා
+         * </Card>
+         *
+         * Wrapper/Layout components හදන්න children prop එක use කරනවා.
+         * children prop is used for wrapper/layout components.
+         */
+        function Card({ title, children }) {
+            return (
+                <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden mb-4">
+                    {/* Card header */}
+                    {title && (
+                        <div className="bg-slate-750 px-5 py-3 border-b border-slate-700">
+                            <h3 className="text-lg font-bold text-white">{title}</h3>
+                        </div>
+                    )}
+                    {/* Card body — children prop එක මෙතන render වෙනවා */}
+                    <div className="p-5">
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        /**
+         * Alert component — children prop එක type එකත් එක්ක use කරන උදාහරණයක්.
+         * Alert component using children with different types.
+         */
+        function Alert({ type = "info", children }) {
+            const styles = {
+                info: "bg-blue-500/10 border-blue-500/30 text-blue-300",
+                success: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
+                warning: "bg-yellow-500/10 border-yellow-500/30 text-yellow-300",
+                error: "bg-red-500/10 border-red-500/30 text-red-300",
+            };
+
+            return (
+                <div className={`border rounded-lg p-4 mb-3 ${styles[type]}`}>
+                    {children}
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 7: Section Header (Helper Component)
+        // ============================================================
+
+        function SectionHeader({ number, title, subtitle }) {
+            return (
+                <div className="mt-10 mb-6">
+                    <div className="flex items-center gap-3 mb-1">
+                        <span className="bg-cyan-500/20 text-cyan-400 text-xs font-mono px-2 py-1 rounded">
+                            {number}
+                        </span>
+                        <h2 className="text-2xl font-bold text-white">{title}</h2>
+                    </div>
+                    {subtitle && <p className="text-slate-500 text-sm ml-12">{subtitle}</p>}
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // APP — සියල්ල එකට එකතු කරමු
+        // Main App — Putting It All Together
+        // ============================================================
+
+        function App() {
+            return (
+                <div className="min-h-screen bg-slate-900">
+                    <div className="max-w-3xl mx-auto px-4 py-8">
+
+                        <WelcomeBanner />
+
+                        {/* --- Props Basics --- */}
+                        <SectionHeader
+                            number="01"
+                            title="Props Basics"
+                            subtitle="Parent එකෙන් child එකට data pass කරන ක්‍රම 2ක්"
+                        />
+
+                        {/* Props pass කරන විදිය — HTML attributes වගේ */}
+                        <GreetingV1 name="Kasun" course="AI & Modern Tech" />
+                        <GreetingV2 name="Nimali" course="AI & Modern Tech" />
+
+                        {/* --- Different Data Types --- */}
+                        <SectionHeader
+                            number="02"
+                            title="Props — Different Types"
+                            subtitle="Strings, numbers, booleans, arrays pass කරමු"
+                        />
+
+                        {/*
+                            String values → quotes ඇතුලේ: name="Kasun"
+                            Numbers, booleans, arrays → { } ඇතුලේ: age={22}
+                        */}
+                        <StudentInfo
+                            name="Kasun Perera"
+                            age={22}
+                            course="AI & Modern Tech"
+                            batch="2026-A"
+                            isActive={true}
+                            skills={["JavaScript", "React", "Node.js"]}
+                        />
+                        <StudentInfo
+                            name="Nimali Fernando"
+                            age={24}
+                            course="AI & Modern Tech"
+                            batch="2026-B"
+                            isActive={true}
+                            skills={["Python", "React", "MongoDB"]}
+                        />
+                        <StudentInfo
+                            name="Saman Silva"
+                            age={21}
+                            course="AI & Modern Tech"
+                            batch="2026-A"
+                            isActive={false}
+                            skills={["HTML", "CSS"]}
+                        />
+
+                        {/* --- Default Props --- */}
+                        <SectionHeader
+                            number="03"
+                            title="Default Props"
+                            subtitle="Props pass නොකලොත් default value use කරනවා"
+                        />
+
+                        {/* සියලුම props pass කරනවා */}
+                        <CourseCard
+                            title="AI & Modern Tech"
+                            instructor="Dimuthu"
+                            duration="12 weeks"
+                            level="Beginner"
+                        />
+                        {/* සමහර props skip කරනවා — defaults use වෙනවා */}
+                        <CourseCard title="Advanced React" level="Advanced" />
+                        {/* props මොනවාවත් pass නොකලොත් — all defaults */}
+                        <CourseCard />
+
+                        {/* --- Reusable ProfileCard --- */}
+                        <SectionHeader
+                            number="04"
+                            title="Reusable Components"
+                            subtitle="එකම ProfileCard component එක 3 වතාවක් — different data"
+                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <ProfileCard
+                                name="Kasun Perera"
+                                role="Full-Stack Developer"
+                                bio="MERN stack enthusiast. Building cool projects at AcademyDSJ."
+                                github="kasunp"
+                            />
+                            <ProfileCard
+                                name="Nimali Fernando"
+                                role="Frontend Developer"
+                                bio="Passionate about React and UI/UX design."
+                                github="nimali-f"
+                            />
+                            <ProfileCard
+                                name="Saman Silva"
+                                role="Student"
+                                bio="Just started learning web development. Excited to learn!"
+                            />
+                        </div>
+
+                        {/* --- Children Prop --- */}
+                        <SectionHeader
+                            number="05"
+                            title="Children Prop"
+                            subtitle="Component tags අතරේ content දාන්න"
+                        />
+
+                        {/* Card component — children prop auto-received */}
+                        <Card title="About AcademyDSJ">
+                            <p className="text-slate-300">
+                                AcademyDSJ is a modern tech education platform teaching
+                                MERN stack, AI, and cutting-edge technologies.
+                            </p>
+                            <p className="text-slate-400 text-sm mt-2">
+                                Join us to level up your career!
+                            </p>
+                        </Card>
+
+                        {/* Alert component — different types */}
+                        <Alert type="info">
+                            <strong>Info:</strong> Props are read-only. Child component එකට props change කරන්න බැහැ!
+                        </Alert>
+                        <Alert type="success">
+                            <strong>Success:</strong> You are learning React props! Great progress!
+                        </Alert>
+                        <Alert type="warning">
+                            <strong>Warning:</strong> Props directly modify කරන්න try කලොත් error එනවා.
+                        </Alert>
+                        <Alert type="error">
+                            <strong>Error:</strong> Component names must start with a CAPITAL letter!
+                        </Alert>
+
+                        {/* Footer */}
+                        <div className="text-center py-8 mt-8 border-t border-slate-700">
+                            <p className="text-slate-500 text-sm">
+                                AcademyDSJ &copy; 2026 | Session 3 — Components & Props ⚛️
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // Render
+        // ============================================================
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+
+</body>
+</html>

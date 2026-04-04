@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOM Manipulation Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; color: #1e293b; }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    .subtitle { color: #64748b; margin-bottom: 20px; }
+    .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    input { flex: 1; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; outline: none; transition: border 0.2s; }
+    input:focus { border-color: #2563eb; }
+    button { padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+    button:hover { background: #1d4ed8; }
+    #output { padding: 8px 12px; margin-bottom: 16px; color: #6b7280; font-size: 0.9rem; min-height: 24px; }
+    .highlight { background: #fefce8; border-radius: 6px; }
+    ul { list-style: none; }
+    .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1 id="title">DOM Demo</h1>
+  <p class="subtitle">Loading...</p>
+
+  <div class="input-row">
+    <input type="text" id="name-input" placeholder="Enter student name..." />
+    <button id="add-btn">Add</button>
+  </div>
+
+  <div id="output"></div>
+
+  <ul id="student-list">
+    <!-- dom.js will populate this -->
+  </ul>
+
+  <p class="footer">Open Console (Cmd+Option+J) to see logs</p>
+
+  <span class="item">1</span>
+  <span class="item">2</span>
+  <span class="item">3</span>
+
+  <script src="dom.js"></script>
+</body>
+</html>

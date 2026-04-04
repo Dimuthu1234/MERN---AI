@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>01 - Hello React | AcademyDSJ Session 3</title>
+
+    <!--
+        ============================================================
+        AcademyDSJ - Session 3: Hello React
+        ============================================================
+        මේ file එකෙන් අපි React basics ඉගෙන ගන්නවා:
+        - React CDN setup (Browser එකේම React run කරන විදිය)
+        - JSX කියන්නේ මොකක්ද
+        - JavaScript expressions JSX ඇතුලේ use කරන විදිය
+        - className, Fragments, Multiple Components
+        ============================================================
+    -->
+
+    <!-- React 18 CDN - React library එක load කරනවා -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <!-- ReactDOM - React components browser DOM එකට render කරනවා -->
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel - JSX code එක browser එකට තේරෙන JavaScript වලට convert කරනවා -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS - Styling වලට -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { background: #0f172a; color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <!-- React app එක මේ div එක ඇතුලේ render වෙනවා -->
+    <div id="root"></div>
+
+    <!--
+        IMPORTANT: type="text/babel" දාන්න ඕනි!
+        මේකෙන් Babel standalone එකට කියනවා මේ script එක
+        JSX code එකක් කියලා, compile කරන්න කියලා.
+    -->
+    <script type="text/babel">
+
+        // ============================================================
+        // SECTION 1: ඔබේ පළමු React Component එක
+        // Your First React Component
+        // ============================================================
+
+        /**
+         * React Component එකක් කියන්නේ JSX return කරන function එකක්.
+         * A React component is a function that returns JSX.
+         *
+         * Rules:
+         * 1. Component name MUST start with a Capital letter (PascalCase)
+         *    - HelloWorld ✅ | helloWorld ❌
+         * 2. Must return JSX (HTML-like syntax)
+         * 3. Must return a single root element
+         */
+        function HelloWorld() {
+            return (
+                <div className="text-center py-8">
+                    <h1 className="text-4xl font-bold text-cyan-400">
+                        Hello, React! ⚛️
+                    </h1>
+                    <p className="text-lg text-slate-400 mt-2">
+                        AcademyDSJ - Session 3
+                    </p>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 2: JSX ඇතුලේ JavaScript Expressions
+        // JavaScript Expressions inside JSX
+        // ============================================================
+
+        /**
+         * JSX ඇතුලේ { } (curly braces) use කරලා JavaScript expressions ලියන්න පුළුවන්.
+         * Inside JSX, use { } to embed any JavaScript expression.
+         *
+         * Expression එකක් = value එකක් return කරන ඕනෑම JavaScript code එකක්
+         * Variables, math, function calls, ternary operators, etc.
+         */
+        function JSXExpressions() {
+            // Variables define කරන්න
+            const studentName = "Kasun Perera";
+            const course = "AI & Modern Tech";
+            const batch = "2026-A";
+            const age = 22;
+            const joinDate = new Date().toLocaleDateString();
+
+            return (
+                <div className="bg-slate-800 rounded-xl p-6 max-w-md mx-auto my-6">
+                    <h2 className="text-2xl font-bold text-emerald-400 mb-4">
+                        JSX Expressions
+                    </h2>
+
+                    {/* Variable එකක් display කරන්න — { } ඇතුලේ variable name දාන්න */}
+                    <p className="text-slate-300">Name: {studentName}</p>
+                    <p className="text-slate-300">Course: {course}</p>
+                    <p className="text-slate-300">Batch: {batch}</p>
+
+                    {/* Math expressions — { } ඇතුලේ calculation කරන්න පුළුවන් */}
+                    <p className="text-slate-300">Age: {age}</p>
+                    <p className="text-slate-300">Next year: {age + 1}</p>
+
+                    {/* Function calls — { } ඇතුලේ functions call කරන්න පුළුවන් */}
+                    <p className="text-slate-300">Name uppercase: {studentName.toUpperCase()}</p>
+                    <p className="text-slate-300">Joined: {joinDate}</p>
+
+                    {/* Ternary operator — condition check කරන්න පුළුවන් */}
+                    <p className="text-slate-300">
+                        Status: {age >= 18 ? "Adult ✅" : "Minor 🔒"}
+                    </p>
+
+                    {/* Template literals use කරන්න පුළුවන් */}
+                    <p className="text-yellow-400 mt-3 font-semibold">
+                        {`Welcome ${studentName} to ${course}!`}
+                    </p>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 3: className & JSX Rules
+        // className සහ JSX නීති
+        // ============================================================
+
+        /**
+         * JSX Rules (JSX නීති):
+         *
+         * 1. "class" වෙනුවට "className" use කරන්න
+         *    - "class" JavaScript වල reserved keyword එකක්
+         *    - HTML: <div class="box">  →  JSX: <div className="box">
+         *
+         * 2. "for" වෙනුවට "htmlFor" use කරන්න
+         *    - HTML: <label for="name">  →  JSX: <label htmlFor="name">
+         *
+         * 3. Self-closing tags close කරන්න ඕනි
+         *    - HTML: <img src="...">     →  JSX: <img src="..." />
+         *    - HTML: <br>               →  JSX: <br />
+         *    - HTML: <input>            →  JSX: <input />
+         *
+         * 4. style attribute එකට object එකක් දෙන්න ඕනි
+         *    - HTML: style="color: red"  →  JSX: style={{ color: 'red' }}
+         *    - camelCase use කරන්න: background-color → backgroundColor
+         */
+        function JSXRules() {
+            // Inline styles — object එකක් විදියට define කරනවා
+            const highlightStyle = {
+                backgroundColor: '#1e293b',
+                borderLeft: '4px solid #06b6d4',
+                padding: '12px',
+                marginBottom: '8px',
+                borderRadius: '4px'
+            };
+
+            return (
+                <div className="bg-slate-800 rounded-xl p-6 max-w-md mx-auto my-6">
+                    <h2 className="text-2xl font-bold text-purple-400 mb-4">
+                        JSX Rules
+                    </h2>
+
+                    {/* className — "class" වෙනුවට */}
+                    <div style={highlightStyle}>
+                        <code className="text-cyan-300">className</code>
+                        <span className="text-slate-400"> instead of class</span>
+                    </div>
+
+                    {/* Self-closing tags */}
+                    <div style={highlightStyle}>
+                        <code className="text-cyan-300">{'<img />'}</code>
+                        <span className="text-slate-400"> — self-closing required</span>
+                    </div>
+
+                    {/* Style object */}
+                    <div style={highlightStyle}>
+                        <code className="text-cyan-300">{'style={{ color: "red" }}'}</code>
+                        <span className="text-slate-400"> — double curly braces</span>
+                    </div>
+
+                    {/* htmlFor */}
+                    <div style={highlightStyle}>
+                        <code className="text-cyan-300">htmlFor</code>
+                        <span className="text-slate-400"> instead of for</span>
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 4: Fragments — Multiple Elements Return කරමු
+        // Fragments — Return Multiple Elements
+        // ============================================================
+
+        /**
+         * React component එකකින් එක root element එකක් විතරක් return කරන්න පුළුවන්.
+         * A React component can only return ONE root element.
+         *
+         * Problem:
+         *   return (<h1>Title</h1><p>Text</p>)  // ❌ Error!
+         *
+         * Solutions:
+         *   1. <div> එකකින් wrap කරන්න (extra DOM element එකක් add වෙනවා)
+         *   2. <React.Fragment> use කරන්න
+         *   3. <>...</> (short syntax) use කරන්න — recommended! ✅
+         */
+        function FragmentDemo() {
+            return (
+                // <> සහ </> = Fragment — extra div එකක් add නොකර multiple elements return කරන්න
+                <>
+                    <div className="bg-slate-800 rounded-xl p-6 max-w-md mx-auto my-6">
+                        <h2 className="text-2xl font-bold text-orange-400 mb-4">
+                            Fragments {'<>...</>'}
+                        </h2>
+                        <p className="text-slate-300 mb-2">
+                            Fragment එකක් use කරලා extra div නැතුව multiple elements return කරන්න පුළුවන්.
+                        </p>
+                        <p className="text-slate-400 text-sm">
+                            View source to see: no extra wrapper div in the DOM!
+                        </p>
+                    </div>
+                </>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 5: Multiple Components එකට use කරමු
+        // Composing Multiple Components Together
+        // ============================================================
+
+        /**
+         * React වල power එක තියෙන්නේ components combine කරන එකේ.
+         * The power of React is combining small components into bigger ones.
+         *
+         * App component එක = Main component (root)
+         * ඇතුලේ අනිත් components use කරනවා — HTML tags වගේම!
+         */
+
+        // Header component
+        function Header() {
+            return (
+                <header className="text-center py-6 border-b border-slate-700">
+                    <h1 className="text-3xl font-bold">
+                        <span className="text-cyan-400">Academy</span>
+                        <span className="text-emerald-400">DSJ</span>
+                    </h1>
+                    <p className="text-slate-500 text-sm mt-1">Session 3 — React Basics</p>
+                </header>
+            );
+        }
+
+        // Footer component
+        function Footer() {
+            return (
+                <footer className="text-center py-6 mt-8 border-t border-slate-700">
+                    <p className="text-slate-500 text-sm">
+                        AcademyDSJ &copy; 2026 | Built with React ⚛️
+                    </p>
+                </footer>
+            );
+        }
+
+        /**
+         * App Component — Main/Root component
+         *
+         * මේ component එක ඇතුලේ අනිත් සියලුම components use කරනවා.
+         * This is the main component that uses all other components.
+         * Components HTML tags වගේ use කරන්න පුළුවන්: <Header />
+         */
+        function App() {
+            return (
+                <div className="min-h-screen bg-slate-900">
+                    <div className="max-w-2xl mx-auto px-4">
+                        {/* Header component එක use කරනවා */}
+                        <Header />
+
+                        {/* Content sections */}
+                        <HelloWorld />
+                        <JSXExpressions />
+                        <JSXRules />
+                        <FragmentDemo />
+
+                        {/* Footer component එක use කරනවා */}
+                        <Footer />
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // React App එක Browser එකට Render කරමු
+        // Render the React App to the Browser
+        // ============================================================
+
+        /**
+         * ReactDOM.createRoot() — React 18 වල app render කරන ක්‍රමය
+         * document.getElementById('root') — HTML එකේ <div id="root"> එක select කරනවා
+         * .render(<App />) — App component එක render කරනවා
+         */
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+
+</body>
+</html>

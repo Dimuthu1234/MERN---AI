@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>04 - Lists & Conditional Rendering | AcademyDSJ Session 3</title>
+
+    <!--
+        ============================================================
+        AcademyDSJ - Session 3: Lists & Conditional Rendering
+        ============================================================
+        මේ file එකෙන් ඉගෙන ගන්නවා:
+        - Arrays render කරන විදිය (.map())
+        - Key prop එකේ importance
+        - Conditional rendering (&&, ternary)
+        - Todo List mini app (add, delete, toggle)
+        - Filter/Search example
+        ============================================================
+    -->
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { background: #0f172a; color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+        const { useState } = React;
+
+
+        // ============================================================
+        // SECTION 1: Basic List Rendering — .map() එකෙන් Arrays Render කරමු
+        // Rendering Arrays with .map()
+        // ============================================================
+
+        /**
+         * React වල arrays render කරන්න .map() method එක use කරනවා.
+         * Use .map() to render arrays in React.
+         *
+         * .map() — array එකේ හැම item එකකටම JSX return කරනවා.
+         * .map() returns JSX for each item in the array.
+         *
+         * KEY PROP (ඉතා වැදගත්!):
+         * - හැම list item එකකටම unique "key" prop එකක් ඕනි
+         * - React track කරන්න key use කරනවා — මොන item එකද change/add/remove වුණේ කියලා
+         * - key = unique identifier (id, index as last resort)
+         * - key නැත්තම් React warning දෙනවා + performance issues!
+         *
+         * WRONG: key={index} (items reorder වුණොත් bugs ඇවිත්)
+         * RIGHT: key={item.id} (unique, stable identifier)
+         */
+        function BasicList() {
+            const students = [
+                { id: 1, name: "Kasun Perera", batch: "2026-A", grade: "A" },
+                { id: 2, name: "Nimali Fernando", batch: "2026-A", grade: "B+" },
+                { id: 3, name: "Saman Silva", batch: "2026-B", grade: "A-" },
+                { id: 4, name: "Dilini Rajapaksa", batch: "2026-B", grade: "A" },
+                { id: 5, name: "Nuwan Bandara", batch: "2026-A", grade: "B" },
+            ];
+
+            return (
+                <div className="bg-slate-800 rounded-xl p-6 mb-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Student List</h3>
+                    <p className="text-slate-500 text-sm mb-4">
+                        .map() එකෙන් array එක loop කරලා JSX return කරනවා — key prop අමතක කරන්න එපා!
+                    </p>
+
+                    <div className="space-y-2">
+                        {/*
+                            students.map() — array එකේ හැම student object එකකටම JSX return කරනවා.
+                            key={student.id} — unique identifier (React internally track කරන්න use කරනවා)
+                        */}
+                        {students.map(student => (
+                            <div key={student.id} className="bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
+                                <div>
+                                    <p className="text-white font-medium">{student.name}</p>
+                                    <p className="text-slate-400 text-sm">Batch: {student.batch}</p>
+                                </div>
+                                <span className="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full text-sm font-medium">
+                                    {student.grade}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p className="text-slate-600 text-xs mt-3">
+                        Total students: {students.length}
+                    </p>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 2: Conditional Rendering — Conditions අනුව Render කරමු
+        // Conditional Rendering Techniques
+        // ============================================================
+
+        /**
+         * React වල conditions අනුව different content render කරන ක්‍රම 3ක්:
+         * 3 ways to conditionally render content in React:
+         *
+         * 1. && (Logical AND) — condition true නම් render කරන්න
+         *    {isLoggedIn && <WelcomeMessage />}
+         *    condition true නම් right side render කරනවා, false නම් මොනවාවත් render කරන්නේ නැහැ.
+         *
+         * 2. Ternary (? :) — condition true/false දෙකටම different content
+         *    {isLoggedIn ? <Dashboard /> : <LoginForm />}
+         *    true නම් first content, false නම් second content render කරනවා.
+         *
+         * 3. Early return — function එක early return කරන්න
+         *    if (!isLoaded) return <Loading />;
+         *    return <Content />;
+         */
+        function ConditionalDemo() {
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [notifications, setNotifications] = useState(3);
+            const [showDetails, setShowDetails] = useState(false);
+
+            return (
+                <div className="bg-slate-800 rounded-xl p-6 mb-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Conditional Rendering</h3>
+
+                    <div className="space-y-4">
+                        {/* Method 1: Ternary operator — true/false දෙකටම content */}
+                        <div className="bg-slate-700/50 rounded-lg p-4">
+                            <p className="text-slate-400 text-xs mb-2">TERNARY (condition ? A : B):</p>
+                            <div className="flex items-center justify-between">
+                                <p className={isLoggedIn ? 'text-emerald-400' : 'text-red-400'}>
+                                    {isLoggedIn ? 'Welcome back, Kasun! ✅' : 'Please log in to continue ❌'}
+                                </p>
+                                <button
+                                    onClick={() => setIsLoggedIn(!isLoggedIn)}
+                                    className={`px-4 py-1 rounded text-sm text-white transition-colors ${
+                                        isLoggedIn ? 'bg-red-600 hover:bg-red-500' : 'bg-emerald-600 hover:bg-emerald-500'
+                                    }`}
+                                >
+                                    {isLoggedIn ? 'Logout' : 'Login'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Method 2: && operator — condition true නම් පමණයි */}
+                        <div className="bg-slate-700/50 rounded-lg p-4">
+                            <p className="text-slate-400 text-xs mb-2">LOGICAL AND (condition && content):</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-white">Notifications</span>
+                                    {/* notifications > 0 නම් badge render කරනවා, 0 නම් මොනවාවත් නැහැ */}
+                                    {notifications > 0 && (
+                                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                            {notifications}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setNotifications(prev => prev + 1)}
+                                        className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-sm transition-colors"
+                                    >
+                                        + Add
+                                    </button>
+                                    <button
+                                        onClick={() => setNotifications(0)}
+                                        className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-1 rounded text-sm transition-colors"
+                                    >
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Toggle show/hide */}
+                        <div className="bg-slate-700/50 rounded-lg p-4">
+                            <p className="text-slate-400 text-xs mb-2">SHOW/HIDE TOGGLE:</p>
+                            <button
+                                onClick={() => setShowDetails(!showDetails)}
+                                className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-1 rounded text-sm mb-3 transition-colors"
+                            >
+                                {showDetails ? 'Hide Details' : 'Show Details'}
+                            </button>
+                            {showDetails && (
+                                <div className="bg-slate-800 rounded-lg p-3 mt-2">
+                                    <p className="text-slate-300 text-sm">
+                                        AcademyDSJ teaches MERN Stack, AI, and modern technologies.
+                                        Join our next batch starting April 2026!
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 3: Todo List Mini App
+        // Add, Delete, Toggle Complete
+        // ============================================================
+
+        /**
+         * Todo List — State + Lists + Events + Conditional Rendering combine!
+         *
+         * Features:
+         * - Add new todos
+         * - Toggle complete/incomplete
+         * - Delete todos
+         * - Count completed/total
+         *
+         * Array state update rules (IMPORTANT!):
+         * - Add:    setTodos([...todos, newTodo])          — spread + new item
+         * - Delete: setTodos(todos.filter(t => t.id !== id)) — filter out the item
+         * - Update: setTodos(todos.map(t => t.id === id ? {...t, done: !t.done} : t))
+         *
+         * NEVER mutate the original array! Always create a NEW array.
+         */
+        function TodoList() {
+            const [todos, setTodos] = useState([
+                { id: 1, text: 'Learn React basics', done: true },
+                { id: 2, text: 'Practice JSX syntax', done: true },
+                { id: 3, text: 'Build a component with props', done: false },
+                { id: 4, text: 'Master useState hook', done: false },
+            ]);
+            const [newTodo, setNewTodo] = useState('');
+
+            // Add new todo
+            const addTodo = (e) => {
+                e.preventDefault();
+                if (!newTodo.trim()) return;
+
+                // New array create කරනවා: existing todos + new todo
+                // Date.now() unique id generate කරනවා
+                setTodos([...todos, {
+                    id: Date.now(),
+                    text: newTodo.trim(),
+                    done: false
+                }]);
+                setNewTodo('');
+            };
+
+            // Toggle complete
+            const toggleTodo = (id) => {
+                // .map() එකෙන් new array create කරනවා
+                // matching id එකේ todo එක update කරනවා, අනිත් ඒවා as-is
+                setTodos(todos.map(todo =>
+                    todo.id === id ? { ...todo, done: !todo.done } : todo
+                ));
+            };
+
+            // Delete todo
+            const deleteTodo = (id) => {
+                // .filter() එකෙන් new array create කරනවා — matching id එක remove
+                setTodos(todos.filter(todo => todo.id !== id));
+            };
+
+            const completedCount = todos.filter(t => t.done).length;
+
+            return (
+                <div className="bg-slate-800 rounded-xl p-6 mb-6">
+                    <h3 className="text-xl font-bold text-white mb-1">Todo List</h3>
+                    <p className="text-slate-500 text-sm mb-4">
+                        {completedCount}/{todos.length} completed
+                    </p>
+
+                    {/* Add todo form */}
+                    <form onSubmit={addTodo} className="flex gap-2 mb-4">
+                        <input
+                            type="text"
+                            value={newTodo}
+                            onChange={(e) => setNewTodo(e.target.value)}
+                            placeholder="Add a new task..."
+                            className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
+                        />
+                        <button
+                            type="submit"
+                            className="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                        >
+                            Add
+                        </button>
+                    </form>
+
+                    {/* Todo list */}
+                    <div className="space-y-2">
+                        {todos.length === 0 && (
+                            <p className="text-slate-500 text-center py-4">No tasks yet. Add one above!</p>
+                        )}
+                        {todos.map(todo => (
+                            <div
+                                key={todo.id}
+                                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                                    todo.done
+                                        ? 'bg-emerald-500/5 border-emerald-500/20'
+                                        : 'bg-slate-700/50 border-slate-600'
+                                }`}
+                            >
+                                <div
+                                    className="flex items-center gap-3 cursor-pointer flex-1"
+                                    onClick={() => toggleTodo(todo.id)}
+                                >
+                                    {/* Checkbox visual */}
+                                    <span className={`w-5 h-5 rounded border-2 flex items-center justify-center text-xs ${
+                                        todo.done
+                                            ? 'bg-emerald-500 border-emerald-500 text-white'
+                                            : 'border-slate-500'
+                                    }`}>
+                                        {todo.done && '✓'}
+                                    </span>
+                                    <span className={`${todo.done ? 'line-through text-slate-500' : 'text-white'}`}>
+                                        {todo.text}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => deleteTodo(todo.id)}
+                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 px-2 py-1 rounded transition-colors text-sm"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Progress bar */}
+                    {todos.length > 0 && (
+                        <div className="mt-4">
+                            <div className="w-full bg-slate-700 rounded-full h-2">
+                                <div
+                                    className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                                    style={{ width: `${(completedCount / todos.length) * 100}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // SECTION 4: Filter & Search Example
+        // Search Bar එකෙන් List Filter කරමු
+        // ============================================================
+
+        /**
+         * Search/Filter — state + .filter() + .map() combine!
+         *
+         * Pattern:
+         * 1. Original data array එක state එකේ තියෙනවා
+         * 2. Search term state එකක් තියෙනවා
+         * 3. .filter() එකෙන් matching items filter කරනවා
+         * 4. .map() එකෙන් filtered results render කරනවා
+         *
+         * .filter() original array එක change කරන්නේ නැහැ — new array return කරනවා!
+         */
+        function CourseSearch() {
+            const [searchTerm, setSearchTerm] = useState('');
+            const [selectedCategory, setSelectedCategory] = useState('all');
+
+            const courses = [
+                { id: 1, name: "React Fundamentals", category: "frontend", level: "Beginner", students: 156 },
+                { id: 2, name: "Node.js Backend", category: "backend", level: "Intermediate", students: 98 },
+                { id: 3, name: "MongoDB Mastery", category: "database", level: "Intermediate", students: 72 },
+                { id: 4, name: "Express.js API Design", category: "backend", level: "Intermediate", students: 84 },
+                { id: 5, name: "Next.js Full-Stack", category: "frontend", level: "Advanced", students: 45 },
+                { id: 6, name: "AI with Python", category: "ai", level: "Beginner", students: 210 },
+                { id: 7, name: "CSS & Tailwind", category: "frontend", level: "Beginner", students: 134 },
+                { id: 8, name: "PostgreSQL Advanced", category: "database", level: "Advanced", students: 38 },
+            ];
+
+            // Filter logic — search term + category combine
+            const filteredCourses = courses.filter(course => {
+                const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            const categories = ['all', 'frontend', 'backend', 'database', 'ai'];
+
+            const levelColors = {
+                Beginner: 'text-emerald-400 bg-emerald-500/10',
+                Intermediate: 'text-yellow-400 bg-yellow-500/10',
+                Advanced: 'text-red-400 bg-red-500/10'
+            };
+
+            return (
+                <div className="bg-slate-800 rounded-xl p-6 mb-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Course Search & Filter</h3>
+
+                    {/* Search input */}
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search courses..."
+                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 mb-3"
+                    />
+
+                    {/* Category filter buttons */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-3 py-1 rounded-full text-sm font-medium capitalize transition-colors ${
+                                    selectedCategory === cat
+                                        ? 'bg-cyan-500 text-white'
+                                        : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Results */}
+                    <p className="text-slate-500 text-sm mb-3">
+                        Showing {filteredCourses.length} of {courses.length} courses
+                    </p>
+
+                    <div className="space-y-2">
+                        {filteredCourses.length === 0 ? (
+                            <p className="text-slate-500 text-center py-8">
+                                No courses found. Try a different search term or category.
+                            </p>
+                        ) : (
+                            filteredCourses.map(course => (
+                                <div key={course.id} className="bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
+                                    <div>
+                                        <p className="text-white font-medium">{course.name}</p>
+                                        <div className="flex items-center gap-3 mt-1">
+                                            <span className="text-slate-400 text-xs capitalize">{course.category}</span>
+                                            <span className="text-slate-600">|</span>
+                                            <span className={`text-xs px-2 py-0.5 rounded ${levelColors[course.level]}`}>
+                                                {course.level}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span className="text-slate-400 text-sm">
+                                        {course.students} students
+                                    </span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+
+        // ============================================================
+        // APP
+        // ============================================================
+
+        function App() {
+            return (
+                <div className="min-h-screen bg-slate-900">
+                    <div className="max-w-2xl mx-auto px-4 py-8">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-xl p-6 text-center mb-8">
+                            <h1 className="text-3xl font-bold text-cyan-400">
+                                Lists & Conditional Rendering ⚛️
+                            </h1>
+                            <p className="text-slate-400 mt-2">
+                                AcademyDSJ Session 3 — .map(), keys, &&, ternary
+                            </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="bg-cyan-500/20 text-cyan-400 text-xs font-mono px-2 py-1 rounded">01</span>
+                            <h2 className="text-lg font-bold text-white">Basic List — .map() & key prop</h2>
+                        </div>
+                        <BasicList />
+
+                        <div className="flex items-center gap-3 mb-4 mt-8">
+                            <span className="bg-cyan-500/20 text-cyan-400 text-xs font-mono px-2 py-1 rounded">02</span>
+                            <h2 className="text-lg font-bold text-white">Conditional Rendering — &&, ternary, toggle</h2>
+                        </div>
+                        <ConditionalDemo />
+
+                        <div className="flex items-center gap-3 mb-4 mt-8">
+                            <span className="bg-cyan-500/20 text-cyan-400 text-xs font-mono px-2 py-1 rounded">03</span>
+                            <h2 className="text-lg font-bold text-white">Todo List — Add, Toggle, Delete</h2>
+                        </div>
+                        <TodoList />
+
+                        <div className="flex items-center gap-3 mb-4 mt-8">
+                            <span className="bg-cyan-500/20 text-cyan-400 text-xs font-mono px-2 py-1 rounded">04</span>
+                            <h2 className="text-lg font-bold text-white">Search & Filter — .filter() + .map()</h2>
+                        </div>
+                        <CourseSearch />
+
+                        {/* Footer */}
+                        <div className="text-center py-8 mt-8 border-t border-slate-700">
+                            <p className="text-slate-500 text-sm">
+                                AcademyDSJ &copy; 2026 | Session 3 — Lists & Conditional Rendering ⚛️
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+
+</body>
+</html>

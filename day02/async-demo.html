@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Async JavaScript Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; color: #1e293b; }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    .subtitle { color: #64748b; margin-bottom: 20px; }
+    button { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-bottom: 12px; }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    #status { padding: 8px 0; font-size: 0.9rem; color: #6b7280; margin-bottom: 12px; }
+    #user-container div { transition: transform 0.2s; }
+    #user-container div:hover { transform: translateX(4px); }
+    .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>Async JavaScript Demo</h1>
+  <p class="subtitle">Fetch data from JSONPlaceholder API</p>
+
+  <button id="load-btn">Load Users</button>
+  <div id="status">Click the button to fetch users from the API</div>
+
+  <div id="user-container">
+    <!-- async.js will populate this -->
+  </div>
+
+  <p class="footer">Open Console (Cmd+Option+J) to see async logs</p>
+
+  <script src="async.js"></script>
+</body>
+</html>
