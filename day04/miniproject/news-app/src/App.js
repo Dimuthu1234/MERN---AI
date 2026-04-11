@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Detail from './pages/Detail';
 import './App.css';
 
+// App file
+
 function App() {
   return (
     <ThemeProvider>
