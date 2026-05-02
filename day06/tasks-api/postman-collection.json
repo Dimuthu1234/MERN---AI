@@ -1,0 +1,187 @@
+{
+  "info": {
+    "name": "Tasks API — Day 06",
+    "description": "AcademyDSJ Day 06 — Node.js + Express REST API.\nImport this into Postman: File → Import → drag this JSON file.\n\nMake sure your server is running: npm run dev",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "academydsj-day06-tasks-api"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "00 — API Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+        "description": "Returns API metadata + endpoint list."
+      }
+    },
+    {
+      "name": "00 — Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] },
+        "description": "Returns server status + uptime."
+      }
+    },
+    {
+      "name": "01 — Get All Tasks",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
+        "description": "List all tasks. Returns { count, tasks: [...] }"
+      }
+    },
+    {
+      "name": "02 — Filter: Completed Only",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?completed=true",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [{ "key": "completed", "value": "true" }]
+        },
+        "description": "Only completed tasks."
+      }
+    },
+    {
+      "name": "03 — Filter: Incomplete Only",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?completed=false",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [{ "key": "completed", "value": "false" }]
+        }
+      }
+    },
+    {
+      "name": "04 — Filter: High Priority",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/tasks?priority=high",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks"],
+          "query": [{ "key": "priority", "value": "high" }]
+        }
+      }
+    },
+    {
+      "name": "05 — Get One Task (id 2)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/tasks/2", "host": ["{{baseUrl}}"], "path": ["tasks", "2"] }
+      }
+    },
+    {
+      "name": "06 — Get One Task (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/tasks/999", "host": ["{{baseUrl}}"], "path": ["tasks", "999"] },
+        "description": "Should return 404 — task does not exist."
+      }
+    },
+    {
+      "name": "07 — Create Task ✅",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Learn REST API design\",\n  \"priority\": \"high\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
+        "description": "Should return 201 Created with new task object."
+      }
+    },
+    {
+      "name": "08 — Create Task (no title — 400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"priority\": \"high\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] },
+        "description": "Should return 400 — validation error."
+      }
+    },
+    {
+      "name": "09 — Create Task (bad priority — 400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Test\",\n  \"priority\": \"super-urgent\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] }
+      }
+    },
+    {
+      "name": "10 — Update Task (mark done)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"completed\": true\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/tasks/3", "host": ["{{baseUrl}}"], "path": ["tasks", "3"] },
+        "description": "Mark task 3 as completed."
+      }
+    },
+    {
+      "name": "11 — Update Task (change title)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated title via Postman\",\n  \"priority\": \"low\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/tasks/4", "host": ["{{baseUrl}}"], "path": ["tasks", "4"] }
+      }
+    },
+    {
+      "name": "12 — Delete Task ✅",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/tasks/5", "host": ["{{baseUrl}}"], "path": ["tasks", "5"] },
+        "description": "Should return 204 No Content."
+      }
+    },
+    {
+      "name": "13 — Delete Task (404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/tasks/999", "host": ["{{baseUrl}}"], "path": ["tasks", "999"] },
+        "description": "Should return 404 — task does not exist."
+      }
+    },
+    {
+      "name": "14 — 404: Unknown Route",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/unknown-route", "host": ["{{baseUrl}}"], "path": ["unknown-route"] },
+        "description": "Should hit the 404 middleware."
+      }
+    }
+  ]
+}
