@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Day 04 - useEffect Basics | AcademyDSJ</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { color: #2dd4bf; margin-bottom: 10px; }
+    .card { background: #1e293b; border-radius: 12px; padding: 20px; margin: 15px 0; border: 1px solid #334155; }
+    button { background: #0d9488; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 5px; }
+    button:hover { background: #14b8a6; }
+    .info { background: #042f2e; border: 1px solid #134e4a; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 13px; color: #5eead4; }
+    .counter { font-size: 48px; font-weight: bold; color: #2dd4bf; text-align: center; margin: 10px 0; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// Example 1: useEffect runs on every render
+function RenderCounter() {
+  const [count, setCount] = useState(0);
+  const [renderCount, setRenderCount] = useState(0);
+
+  // Pattern 1: No dependency array - runs EVERY render
+  useEffect(() => {
+    setRenderCount(prev => prev + 1);
+  });
+
+  return (
+    <div className="card">
+      <h3 style={{color: '#f59e0b'}}>Pattern 1: Every Render</h3>
+      <p className="counter">{count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <p style={{marginTop: 10, color: '#94a3b8'}}>Component rendered {renderCount} times</p>
+      <div className="info">
+        ⚠️ No dependency array = runs on EVERY render. Render count keeps increasing!
+      </div>
+    </div>
+  );
+}
+
+// Example 2: useEffect runs once (empty [])
+function DocumentTitle() {
+  const [count, setCount] = useState(0);
+
+  // Pattern 2: Empty [] - runs ONCE on mount
+  useEffect(() => {
+    console.log("🟢 Component mounted! This runs only ONCE.");
+    document.title = "AcademyDSJ - useEffect Demo";
+  }, []);
+
+  // Pattern 3: Specific dependency [count]
+  useEffect(() => {
+    document.title = `Count: ${count} | AcademyDSJ`;
+  }, [count]);
+
+  return (
+    <div className="card">
+      <h3 style={{color: '#3b82f6'}}>Pattern 2 & 3: Mount Once + Watch Value</h3>
+      <p className="counter">{count}</p>
+      <button onClick={() => setCount(count + 1)}>+1</button>
+      <button onClick={() => setCount(count - 1)}>-1</button>
+      <button onClick={() => setCount(0)} style={{background: '#ef4444'}}>Reset</button>
+      <div className="info">
+        👀 Browser tab title changes with count! (Pattern 3: [count] dependency)
+      </div>
+    </div>
+  );
+}
+
+// Example 3: Cleanup function
+function Timer() {
+  const [seconds, setSeconds] = useState(0);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    if (!running) return;
+
+    const interval = setInterval(() => {
+      setSeconds(prev => prev + 1);
+    }, 1000);
+
+    // Cleanup: runs when component unmounts OR when 'running' changes
+    return () => {
+      console.log("🔴 Cleanup: clearing interval");
+      clearInterval(interval);
+    };
+  }, [running]);
+
+  return (
+    <div className="card">
+      <h3 style={{color: '#8b5cf6'}}>Cleanup Function: Timer</h3>
+      <p className="counter">⏱️ {seconds}s</p>
+      <button onClick={() => setRunning(!running)}>{running ? '⏸ Pause' : '▶️ Start'}</button>
+      <button onClick={() => { setRunning(false); setSeconds(0); }} style={{background: '#ef4444'}}>🔄 Reset</button>
+      <div className="info">
+        {running ? '🟢 Timer running...' : '⏸ Timer paused'}<br/>
+        Cleanup function clears the interval when paused/unmounted.
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div className="container">
+      <h1>⚡ useEffect Hook — 3 Patterns</h1>
+      <p style={{color: '#94a3b8', marginBottom: 20}}>Day 04 — AcademyDSJ</p>
+      <DocumentTitle />
+      <Timer />
+      <RenderCounter />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
