@@ -1,0 +1,21 @@
+{
+  "name": "tasks-api",
+  "version": "2.0.0",
+  "description": "Day 07 — Tasks REST API with MongoDB + Mongoose (upgrade of day 06's in-memory API)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "author": "AcademyDSJ",
+  "license": "MIT"
+}
