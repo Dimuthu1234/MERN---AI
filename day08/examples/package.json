@@ -1,0 +1,16 @@
+{
+  "name": "day08-examples",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Day 08 — Standalone Claude SDK concept examples",
+  "scripts": {
+    "01": "node 01-first-claude-call.js",
+    "02": "node 02-system-and-user-prompts.js",
+    "03": "node 03-structured-json-output.js",
+    "04": "node 04-streaming-response.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "dotenv": "^16.4.5"
+  }
+}

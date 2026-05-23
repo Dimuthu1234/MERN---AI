@@ -1,0 +1,111 @@
+{
+  "info": {
+    "name": "Day 08 — AI Tasks API",
+    "description": "Tasks API + Anthropic Claude AI endpoints. Run requests in order — request 3 auto-saves taskId for use in requests 6 & 7.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "taskId",  "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. GET /",
+      "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] } }
+    },
+    {
+      "name": "2. GET /health",
+      "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } }
+    },
+    {
+      "name": "3. POST /tasks (plain create — saves taskId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const json = pm.response.json();",
+              "if (json.id) { pm.collectionVariables.set('taskId', json.id); console.log('Saved taskId:', json.id); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"refactor authentication middleware to use jwt\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] }
+      }
+    },
+    {
+      "name": "4. POST /ai/categorize  (title → priority + tags)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"refactor authentication middleware to use jwt\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/ai/categorize", "host": ["{{baseUrl}}"], "path": ["ai", "categorize"] }
+      }
+    },
+    {
+      "name": "5. POST /ai/enhance  (title → description)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"refactor authentication middleware to use jwt\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/ai/enhance", "host": ["{{baseUrl}}"], "path": ["ai", "enhance"] }
+      }
+    },
+    {
+      "name": "6. POST /ai/suggest-subtasks/:id  (saves subtasks to DB)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": {
+          "raw": "{{baseUrl}}/ai/suggest-subtasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["ai", "suggest-subtasks", "{{taskId}}"]
+        }
+      }
+    },
+    {
+      "name": "7. GET /tasks/:id  (see subtasks populated)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/tasks/{{taskId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["tasks", "{{taskId}}"]
+        }
+      }
+    },
+    {
+      "name": "8. POST /ai/chat  (streaming SSE — Postman renders chunks)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"prompt\": \"What's the difference between JWT and session-based auth in 80 words?\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/ai/chat", "host": ["{{baseUrl}}"], "path": ["ai", "chat"] }
+      }
+    },
+    {
+      "name": "9. GET /ai/usage  (today's call count + spend)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ai/usage", "host": ["{{baseUrl}}"], "path": ["ai", "usage"] }
+      }
+    }
+  ]
+}
