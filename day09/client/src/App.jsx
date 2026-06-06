@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
+import ChatWidget from "./components/ChatWidget.jsx";
 import Home from "./pages/Home.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="/product/:id" element={<ProductPage />} />
         </Routes>
       </main>
+      <ChatWidget />
     </div>
   );
 }

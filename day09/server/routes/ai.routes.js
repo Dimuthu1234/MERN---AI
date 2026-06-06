@@ -2,7 +2,7 @@
 // All AI work is delegated to ai.service.js — routes never import the
 // Anthropic SDK directly (CLAUDE.md hard rule 1).
 import { Router } from "express";
-import { semanticSearch } from "../services/ai.service.js";
+import { semanticSearch, chat } from "../services/ai.service.js";
 
 const router = Router();
 
@@ -14,6 +14,27 @@ router.post("/search", async (req, res) => {
   } catch (e) {
     console.error("AI search failed:", e.message);
     res.json({ success: false, error: "Search failed", data: [] });
+  }
+});
+
+// Feature 2 — streaming chat assistant (SSE). The service yields events; the
+// route just forwards them. The Anthropic SDK never enters this file.
+router.post("/chat", async (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`);
+
+  try {
+    for await (const evt of chat(req.body.messages || [])) {
+      send(evt);
+    }
+    send({ type: "done" });
+  } catch (e) {
+    console.error("AI chat failed:", e.message);
+    send({ type: "error", message: "Assistant unavailable" });
+  } finally {
+    res.end();
   }
 });
 

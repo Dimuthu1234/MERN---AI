@@ -65,9 +65,121 @@ export async function semanticSearch(query) {
   return ids.map((id) => byId.get(String(id))).filter(Boolean);
 }
 
-// ---- Feature 2: Chat assistant (implemented in a later block) ----
-export async function chat(_messages) {
-  throw new Error("chat() not implemented yet");
+// ---- Feature 2: Chat assistant with tool use (streaming) ----
+// Tools Claude can call. The service executes them via runChatTool().
+export const CHAT_TOOLS = [
+  {
+    name: "search_products",
+    description:
+      "Search the ShopWave catalog for products matching a shopper's need or description.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Natural-language description of what the shopper wants.",
+        },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    name: "add_to_cart",
+    description: "Add a product to the shopper's cart by its product id.",
+    input_schema: {
+      type: "object",
+      properties: {
+        productId: {
+          type: "string",
+          description: "The _id of a product from the catalog.",
+        },
+      },
+      required: ["productId"],
+    },
+  },
+];
+
+// Execute a tool call server-side and return a JSON-serialisable result.
+export async function runChatTool(name, input) {
+  if (name === "search_products") {
+    const results = await semanticSearch(input.query || "");
+    return results.slice(0, 5).map((p) => ({
+      id: String(p._id),
+      name: p.name,
+      price: p.price,
+      category: p.category,
+    }));
+  }
+  if (name === "add_to_cart") {
+    const p = await Product.findById(input.productId).lean();
+    if (!p) return { added: false };
+    // Return the full product so the client can add it to the cart with a real price.
+    return {
+      added: true,
+      name: p.name,
+      product: { _id: String(p._id), name: p.name, price: p.price, image: p.image },
+    };
+  }
+  return { error: "unknown tool" };
+}
+
+// Streaming chat turn that resolves the full tool-use loop.
+// Async generator: yields { type: "text" | "cart_add" } events. The route pipes
+// these to the client as SSE — keeping the Anthropic SDK out of the routes.
+export async function* chat(messages) {
+  const { text: catalog } = await getCatalogContext();
+  const system =
+    "You are ShopWave's friendly shopping assistant. Only recommend products " +
+    "from the catalog below — never invent products, prices, or details. Use " +
+    "the search_products tool to find relevant items, and add_to_cart to add a " +
+    "product the shopper agrees to. Respect any budget the shopper mentions. " +
+    "Be concise, warm, and helpful.\n\nCatalog:\n" +
+    catalog;
+
+  const convo = [...messages];
+
+  // Cap the tool-use loop so a misbehaving turn can't spin forever.
+  for (let hop = 0; hop < 5; hop++) {
+    const stream = anthropic.messages.stream({
+      model: MODEL,
+      max_tokens: 1024,
+      system,
+      tools: CHAT_TOOLS,
+      messages: convo,
+    });
+
+    // Stream text deltas to the client as they arrive.
+    for await (const event of stream) {
+      if (
+        event.type === "content_block_delta" &&
+        event.delta.type === "text_delta"
+      ) {
+        yield { type: "text", text: event.delta.text };
+      }
+    }
+
+    const final = await stream.finalMessage();
+    const toolUses = final.content.filter((b) => b.type === "tool_use");
+
+    // No tool calls → the assistant is done.
+    if (toolUses.length === 0) return;
+
+    convo.push({ role: "assistant", content: final.content });
+
+    const toolResults = [];
+    for (const tu of toolUses) {
+      const out = await runChatTool(tu.name, tu.input);
+      if (tu.name === "add_to_cart" && out.added) {
+        yield { type: "cart_add", name: out.name, product: out.product };
+      }
+      toolResults.push({
+        type: "tool_result",
+        tool_use_id: tu.id,
+        content: JSON.stringify(out),
+      });
+    }
+    convo.push({ role: "user", content: toolResults });
+  }
 }
 
 // ---- Feature 3: Content generation (implemented in a later block) ----
