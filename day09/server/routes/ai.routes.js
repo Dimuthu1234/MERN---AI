@@ -2,7 +2,11 @@
 // All AI work is delegated to ai.service.js — routes never import the
 // Anthropic SDK directly (CLAUDE.md hard rule 1).
 import { Router } from "express";
-import { semanticSearch, chat } from "../services/ai.service.js";
+import {
+  semanticSearch,
+  chat,
+  generateProductContent,
+} from "../services/ai.service.js";
 
 const router = Router();
 
@@ -14,6 +18,18 @@ router.post("/search", async (req, res) => {
   } catch (e) {
     console.error("AI search failed:", e.message);
     res.json({ success: false, error: "Search failed", data: [] });
+  }
+});
+
+// Feature 3 — one-click product content generation (structured JSON).
+router.post("/generate-content", async (req, res) => {
+  try {
+    const { name, category } = req.body;
+    const data = await generateProductContent(name, category);
+    res.json({ success: true, data });
+  } catch (e) {
+    console.error("AI content generation failed:", e.message);
+    res.json({ success: false, error: "Generation failed" });
   }
 });
 

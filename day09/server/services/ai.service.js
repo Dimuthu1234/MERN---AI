@@ -182,9 +182,44 @@ export async function* chat(messages) {
   }
 }
 
-// ---- Feature 3: Content generation (implemented in a later block) ----
-export async function generateProductContent(_name, _category) {
-  throw new Error("generateProductContent() not implemented yet");
+// ---- Feature 3: Content generation (structured JSON) ----
+// Returns { description, seoTags: string[], marketingCopy }. Parsed with
+// try/catch so a malformed model response throws cleanly for the route to catch.
+export async function generateProductContent(name, category) {
+  const msg = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 700,
+    system:
+      "You are an e-commerce copywriter for ShopWave, a modern lifestyle store. " +
+      "Write coherent, on-brand copy. Respond with ONLY valid JSON — no markdown, " +
+      "no code fences, no preamble.",
+    messages: [
+      {
+        role: "user",
+        content:
+          `Product name: "${name}", category: "${category}".\n` +
+          `Return JSON with exactly these keys: ` +
+          `{ "description": string (2-3 sentences), ` +
+          `"seoTags": string[] (exactly 6 short lowercase tags), ` +
+          `"marketingCopy": string (1 punchy tagline) }`,
+      },
+    ],
+  });
+
+  const textBlock = msg.content.find((b) => b.type === "text");
+  try {
+    const clean = String(textBlock?.text)
+      .replace(/```json|```/g, "")
+      .trim();
+    const parsed = JSON.parse(clean);
+    return {
+      description: parsed.description || "",
+      seoTags: Array.isArray(parsed.seoTags) ? parsed.seoTags : [],
+      marketingCopy: parsed.marketingCopy || "",
+    };
+  } catch {
+    throw new Error("Could not parse generated content");
+  }
 }
 
 // ---- Feature 4: Recommendations (implemented in a later block) ----

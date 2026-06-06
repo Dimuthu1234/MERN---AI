@@ -16,17 +16,25 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <button
-          className="relative rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600"
-          aria-label="Cart"
-        >
+        <nav className="flex items-center gap-3">
+          <Link
+            to="/admin"
+            className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:text-indigo-600"
+          >
+            Admin
+          </Link>
+          <button
+            className="relative rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600"
+            aria-label="Cart"
+          >
           Cart
           {count > 0 && (
             <span className="absolute -right-2 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-indigo-600 px-1.5 text-xs font-semibold text-white shadow">
               {count}
             </span>
           )}
-        </button>
+          </button>
+        </nav>
       </div>
     </header>
   );

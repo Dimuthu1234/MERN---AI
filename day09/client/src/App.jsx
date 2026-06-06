@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar.jsx";
 import ChatWidget from "./components/ChatWidget.jsx";
 import Home from "./pages/Home.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
+import Admin from "./pages/Admin.jsx";
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
       <ChatWidget />
