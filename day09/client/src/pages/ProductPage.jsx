@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api.js";
 import { useCart } from "../context/CartContext.jsx";
+import RecRail from "../components/RecRail.jsx";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -88,6 +89,8 @@ export default function ProductPage() {
           </button>
         </div>
       </div>
+
+      <RecRail currentProductId={p._id} />
     </div>
   );
 }

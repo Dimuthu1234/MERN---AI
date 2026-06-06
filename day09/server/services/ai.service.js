@@ -222,7 +222,44 @@ export async function generateProductContent(name, category) {
   }
 }
 
-// ---- Feature 4: Recommendations (implemented in a later block) ----
-export async function recommend(_context) {
-  throw new Error("recommend() not implemented yet");
+// ---- Feature 4: Recommendations ----
+// Reason over the current product + cart + catalog to pick complementary items.
+// Excludes the current product and anything already in the cart, and enforces
+// in-stock server-side so the model can't surface an out-of-stock item.
+export async function recommend({ currentProductId, cartItemIds = [] }) {
+  const { products, text } = await getCatalogContext();
+  const exclude = new Set([currentProductId, ...cartItemIds].map(String));
+
+  const msg = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 256,
+    system:
+      "You recommend complementary products for a shopper. Use ONLY products " +
+      "from the provided catalog — never invent ids. Prefer items that pair " +
+      "well with the current product. Only choose in-stock items. Return ONLY " +
+      "a JSON array of up to 4 product ids, most relevant first. No prose.",
+    messages: [
+      {
+        role: "user",
+        content:
+          `Catalog:\n${text}\n\n` +
+          `Current product id: ${currentProductId}\n` +
+          `Already in cart: ${cartItemIds.join(", ") || "none"}\n\n` +
+          `Return a JSON array of up to 4 complementary, in-stock product ids, ` +
+          `excluding the current product and any cart items.`,
+      },
+    ],
+  });
+
+  const textBlock = msg.content.find((b) => b.type === "text");
+  const ids = safeJsonArray(textBlock?.text).filter(
+    (id) => !exclude.has(String(id))
+  );
+
+  const byId = new Map(products.map((p) => [String(p._id), p]));
+  return ids
+    .map((id) => byId.get(String(id)))
+    .filter(Boolean)
+    .filter((p) => p.stock > 0)
+    .slice(0, 4);
 }

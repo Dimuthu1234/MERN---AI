@@ -6,6 +6,7 @@ import {
   semanticSearch,
   chat,
   generateProductContent,
+  recommend,
 } from "../services/ai.service.js";
 
 const router = Router();
@@ -30,6 +31,17 @@ router.post("/generate-content", async (req, res) => {
   } catch (e) {
     console.error("AI content generation failed:", e.message);
     res.json({ success: false, error: "Generation failed" });
+  }
+});
+
+// Feature 4 — complementary product recommendations.
+router.post("/recommend", async (req, res) => {
+  try {
+    const data = await recommend(req.body);
+    res.json({ success: true, data });
+  } catch (e) {
+    console.error("AI recommend failed:", e.message);
+    res.json({ success: false, error: "Recommend failed", data: [] });
   }
 });
 
