@@ -1,0 +1,20 @@
+{
+  "name": "docchat-ai-server",
+  "version": "1.0.0",
+  "description": "DocChat AI backend — chat with your document (RAG + streaming + tools).",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
