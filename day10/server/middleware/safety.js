@@ -9,12 +9,12 @@
 import rateLimit from 'express-rate-limit';
 
 // ── Layer 1 (Slide 34): 20 requests / minute, keyed by client IP ──────────────
+// (Default keyGenerator already keys by IP and normalises IPv6 — no custom one.)
 export const aiRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.ip,
   handler: (_req, res) =>
     res.status(429).json({ success: false, error: 'Too many requests. Please slow down.' }),
 });
