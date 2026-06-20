@@ -1,8 +1,19 @@
 import express from 'express';
 import { Document } from '../models/Document.js';
 import { summariseDocument, streamChat } from '../services/ai.service.js';
+import { aiRateLimiter, detectInjection } from '../middleware/safety.js';
 
 const aiRouter = express.Router();
+
+// Layer 1 (Slide 34): rate-limit every AI endpoint, keyed by IP.
+aiRouter.use(aiRateLimiter);
+
+// small helper: send one SSE event + [DONE], then close the stream.
+function sseSay(res, delta) {
+  res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
 
 // POST /api/ai/chat  { docId, messages } -> streams the answer as SSE.
 // Section 5 (RAG via tool use) + Section 1 (token-by-token streaming).
@@ -18,14 +29,19 @@ aiRouter.post('/chat', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders?.();
 
+  // Layer 2 (Slide 32): refuse injection attempts BEFORE calling Claude.
+  const latestUser = [...messages].reverse().find((m) => m.role === 'user');
+  if (detectInjection(latestUser?.content)) {
+    console.warn('[ai] 🛡️  injection blocked — Claude not called:', latestUser?.content);
+    return sseSay(res, "I can't help with that request.");
+  }
+
   try {
     await streamChat({ res, docId, messages });
   } catch (err) {
     console.error('[ai] chat error:', err);
-    // Section 6: friendly fallback over the stream — never leak the error/key.
-    res.write(`data: ${JSON.stringify({ delta: '\n\n⚠️ Sorry, something went wrong.' })}\n\n`);
-    res.write('data: [DONE]\n\n');
-    res.end();
+    // Layer 4: friendly fallback over the stream — never leak the error/key.
+    sseSay(res, 'Something went wrong. Please try again.');
   }
 });
 
