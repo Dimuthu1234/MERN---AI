@@ -25,6 +25,9 @@ pnpm-debug.log*
 coverage/
 .cache/
 
+# Runtime task store (created by the server at runtime; keep the data/ dir)
+data/tasks.json
+
 # OS / editor
 .DS_Store
 Thumbs.db
