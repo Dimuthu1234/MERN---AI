@@ -142,6 +142,33 @@ server.registerTool(
   }
 );
 
+// --- search_tasks --------------------------------------------------------
+server.registerTool(
+  "search_tasks",
+  {
+    description:
+      "Search tasks by title (case-insensitive substring match). Use when the " +
+      "user asks 'do I have anything about X?' or wants to find tasks containing " +
+      "specific keywords.",
+    inputSchema: {
+      query: z
+        .string()
+        .min(1)
+        .describe("The search term to find in task titles, e.g. 'zoom' or 'email'"),
+    },
+  },
+  async ({ query }) => {
+    const all = listTasks("all");
+    const matches = all.filter((t) =>
+      t.title.toLowerCase().includes(query.toLowerCase())
+    );
+    if (matches.length === 0) {
+      return text(`No tasks matching "${query}" found.`);
+    }
+    return text(`Found ${matches.length} task(s):\n${matches.map(fmt).join("\n")}`);
+  }
+);
+
 // --- RESOURCE: tasks://all -----------------------------------------------
 // Resources are APP-CONTROLLED, READ-ONLY context — they expose data for the
 // host to read, and they never change state. (Contrast with tools above, which
