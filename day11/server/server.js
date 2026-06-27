@@ -142,6 +142,57 @@ server.registerTool(
   }
 );
 
+// --- RESOURCE: tasks://all -----------------------------------------------
+// Resources are APP-CONTROLLED, READ-ONLY context — they expose data for the
+// host to read, and they never change state. (Contrast with tools above, which
+// take actions on the user's behalf.) Here we surface the whole task list as
+// JSON so a host can load it as context in one read.
+server.registerResource(
+  "tasks",
+  "tasks://all",
+  {
+    title: "All tasks",
+    description: "The full task list as JSON (read-only).",
+    mimeType: "application/json",
+  },
+  async (uri) => ({
+    contents: [
+      {
+        uri: uri.href,
+        mimeType: "application/json",
+        text: JSON.stringify(listTasks("all"), null, 2),
+      },
+    ],
+  })
+);
+
+// --- PROMPT: daily_standup -----------------------------------------------
+// Prompts are USER-CONTROLLED, reusable templates the host can offer (e.g. as a
+// slash command). This one asks the model to turn the current task list into a
+// short standup. The model will read the tasks (via list_tasks / tasks://all).
+server.registerPrompt(
+  "daily_standup",
+  {
+    title: "Daily standup",
+    description: "Summarise the current tasks into a short standup.",
+  },
+  () => ({
+    messages: [
+      {
+        role: "user",
+        content: {
+          type: "text",
+          text:
+            "Look at my current tasks and give me a short daily standup with " +
+            "three sections — Done, Doing, and Blockers. Keep it to a few bullet " +
+            "points; pull 'Done' from completed tasks and 'Doing' from pending " +
+            "ones, and call out anything overdue as a blocker.",
+        },
+      },
+    ],
+  })
+);
+
 // --- connect over stdio --------------------------------------------------
 // The host (our client, Claude Desktop, or Claude Code) spawns this file and
 // speaks JSON-RPC over stdio. We just wait for it.
